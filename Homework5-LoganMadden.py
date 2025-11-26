@@ -1,9 +1,8 @@
 # author: Logan Madden
 # date: 11/25/2025
 # testing different hash functions
-# approach 1: multiplying the ASCII values of the letters within the chosen title/quote and SImply checking the next bucket
-# if initial bucket is full until an open bucket is found
-
+# approach 2: adding the ASCII values of the letters within the chosen title/quote followed by multiplying them by the length of the string
+# and SImply checking the next bucket if initial bucket is full until an open bucket is found
 
 import time
 
@@ -19,14 +18,13 @@ class DataItem:
         self.production_company = line[7]
         self.quote = line[8]
         pass
-#simply multiplying the ACII calues of the letters within the chosen string
+# adding the ASCII values of the letters within the string before multiplying them by the length of the string
 def hashFunction(stringData):
      key = 0
      for i in range(0, len(stringData)):
           if key != 0:
-               key = ord(stringData[i]) * key
-          else:
-               key = ord(stringData[i])
+               key = ord(stringData[i]) + key
+     key = key * len(stringData)
      return key
 #Using the basic function of moving ot the next open slot if the initial bucket is full.
 def insertKey(hashTable, movie, key, size):
@@ -52,7 +50,7 @@ import csv
 size = 10000 
 hashTitleTable = [None] * size
 hashQuoteTable = [None] * size
-
+# creating the two hash tables
 file = "MOCK_DATA.csv"
 counter = 0
 start = time.time()
@@ -65,8 +63,9 @@ with open(file, 'r', newline='',  encoding="utf8") as csvfile:
             movie = DataItem(row)
             titleKey = hashFunction(movie.movie_name)
             quoteKey = hashFunction(movie.quote)
-            hashTitleTable, titleCollisions = insertKey(hashTitleTable, movie, titleKey % size, size)
-            hashQuoteTable, quoteCollisions = insertKey(hashQuoteTable, movie, quoteKey % size, size)
+            #removed % size as the keys aren't as large in this approach and shouldn't pass 10000 (in theory)
+            hashTitleTable, titleCollisions = insertKey(hashTitleTable, movie, titleKey , size)
+            hashQuoteTable, quoteCollisions = insertKey(hashQuoteTable, movie, quoteKey , size)
             counter += 1
             if counter == 10001: # For some reaosn it would just repeat the last line, this fixed it
                  break
@@ -77,5 +76,5 @@ print(f"the quote hash table had {emptyQuote} empty slots")
 print(f"the title hash table had {titleCollisions} collisions")
 print(f"the quote hash table had {quoteCollisions} collisions")
 end = time.time()
-print("attempy 1: multiplying ASCII values and checking next bucket until empty one is found")
+print("attempy 2:Adding the ASCII values and multiplying them by the length and checking next bucket until empty one is found")
 print(f"{end-start:0.2f} seconds")
